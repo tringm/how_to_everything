@@ -5,3 +5,4 @@ Literally everything (inspired by Kimmo)
 
 ## [Node Js - Test Suite](nodejs/testSuite.md)
 
+## [Git](git/git.md)
