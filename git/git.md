@@ -27,8 +27,13 @@ Stash staged content (after add)
 3. Reverting:
 
 ```
+Reset staged
 git add => git reset
 ```
 
 ```
+Reset commit but keep file
 git commit => git reset => git Head~<no_of_behind_HEAD> (git Head~1)
+git reset HEAD^
+
+```
