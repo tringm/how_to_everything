@@ -37,3 +37,8 @@ git commit => git reset => git Head~<no_of_behind_HEAD> (git Head~1)
 git reset HEAD^
 
 ```
+
+```
+# Reset master back to origin/master
+git reset --hard origin/master
+```
