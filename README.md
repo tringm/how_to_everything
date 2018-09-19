@@ -1,8 +1,10 @@
 # how_to_everything
 Literally everything (inspired by Kimmo)
 
-## [Debian terminal](terminal/Debian.md)
+## [Terminal](terminal/README.md)
 
 ## [Node Js - Test Suite](nodejs/testSuite.md)
 
-## [Git](git/git.md)
+## [Git](git/README.md)
+
+## [Python](python/README.md)
