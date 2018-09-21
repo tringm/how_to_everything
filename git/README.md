@@ -1,5 +1,20 @@
 # Git
 
+## Branches
+
+1. List all branches:
+
+```
+git branch -a
+```
+
+2. Check out to branch:
+
+```
+git checkout <branch_name>
+```
+
+
 ## Fetch
 
 Fetch new info from git. Doesn't merge
