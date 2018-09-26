@@ -57,3 +57,16 @@ git reset HEAD^
 # Reset master back to origin/master
 git reset --hard origin/master
 ```
+
+## Checkout
+1. Ignore unstaged changes:
+
+```
+git checkout -- .
+```
+
+For a specific file
+
+```
+git checkout path/to/file
+```
