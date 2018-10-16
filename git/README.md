@@ -14,6 +14,18 @@ git branch -a
 git checkout <branch_name>
 ```
 
+## Merge
+
+1. Fast-forward merging:
+
+<href>https://confluence.atlassian.com/bitbucket/use-a-git-branch-to-merge-a-file-681902555.html</href>
+Merge the fixing branch with faster
+* Switch to branch + pull
+* Switch to master ```git checkout master```
+* Merge ```git merge <branch-name>```
+* Resolve conflict if necessary with ```git mergetool``` and continue merge ```git commit``` then ```git push```
+* Delete the fixing branch ```git branch -d <branch-name>```
+* Check with git status
 
 ## Fetch
 
@@ -70,3 +82,4 @@ For a specific file
 ```
 git checkout path/to/file
 ```
+
