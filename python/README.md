@@ -3,3 +3,5 @@
 ## [Pandas](./panda.md)
 
 ## [Logging](./logging.md)
+
+## [SKLearn](./sklearn.md)
