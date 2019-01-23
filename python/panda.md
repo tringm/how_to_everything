@@ -62,7 +62,21 @@ Y.merge(X, how='right', on='SEQN')
 ```
 
 If doesn't want to add columns (basically filter by matching id)
-
 ```python
 Y.merge(X, how='right', on='SEQN').drop(columns=[column for column in list(X.columns) if column != 'SEQN'])
 ```
+
+### Request object to dataframe
+* With url:
+    ```python
+    pd.read_csv(url)
+    ```
+* With request response:
+    ```python
+    import requests
+    import pandas as pd
+    import io
+
+    request = requests.post(url, data = 'haha')
+    df = pd.read_csv(io.StringIO(request.content.decode('utf-8')))
+    ```
