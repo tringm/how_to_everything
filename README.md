@@ -1,12 +1,21 @@
 # how_to_everything
-Literally everything (inspired by Kimmo)
+A learning diary of everything (inspired by Kimmo Brunfeldt)
 
-## [Terminal](terminal/README.md)
+### Linux-related
+1. [Terminal](terminal/README.md)
+1. [Debian](debian/README.md)
 
-## [Node Js - Test Suite](nodejs/testSuite.md)
+### [Data Science Related](data-science/README.md)
 
-## [Git](git/README.md)
+### Programming Languages
+1. [Node Js - Test Suite](nodejs/testSuite.md)
+1. [Python](python/README.md)
+1. [jq](jq/README.md)
 
-## [Python](python/README.md)
+### [Git](git/README.md)
 
-## [Data Science Related](datascience/README.md)
+### [Google Analytics](google-analytics/README.md)
+
+### Misc
+1. [Latex](latex/README.md)
+1. [OpenStreetMap](openstreetmap/README.md)
