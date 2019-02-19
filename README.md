@@ -4,6 +4,7 @@ A learning diary of everything (inspired by Kimmo Brunfeldt)
 ### Linux-related
 1. [Terminal](terminal/README.md)
 1. [Debian](debian/README.md)
+1. [Ubuntu](ubuntu/README.md)
 
 ### [Data Science Related](data-science/README.md)
 
