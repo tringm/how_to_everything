@@ -43,41 +43,24 @@ test_loader = torch.utils.data.DataLoader(mnist_testset, batch_size=BATCH_SIZE, 
 class ConvNet(nn.Module):
     def __init__(self,
                  img_width,
-                 n_classes):
+                 n_classes,
+                 extra_arg_1=None,
+                 extra_arg_2=None):
         super(ConvNet, self).__init__()
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=1,
-                out_channels=16,
-                kernel_size=5,
-                stride=1,
-                padding=2
-            ),                              # output shape (16, 28, 28)
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2)     # choose max value in 2x2 area => output shape (16, 14, 14)
-        )
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=16,
-                out_channels=32,
-                kernel_size=5,
-                stride=1,
-                padding=2
-            ),                              # output shape (32, 14, 14)
-            nn.ReLU(),
-            nn.MaxPool2d(2)                 # output shape (32, 7, 7)
-            )
-        self.fc1 = nn.Linear(32 * 7 * 7, img_width*img_width)
-        self.fc2 = nn.Linear(img_width*img_width, n_classes)
+        self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
+        self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
+        self.conv2_dropout = nn.Dropout2d()
+        self.fc1 = nn.Linear(320, 50)
+        self.fc2 = nn.Linear(50, n_classes)
 
     def forward(self, x):
-        out = self.conv1(x)
-        out = self.conv2(out)
-        out = out.view(out.size(0), -1)
-        out = F.relu(self.fc1(out))
-        out = F.dropout(out, 0.5, training=self.training)
-        out = F.relu(self.fc2(out))
-        return F.log_softmax(out, dim=1)
+        x = F.relu(F.max_pool2d(self.conv1(x), 2))
+        x = F.relu(F.max_pool2d(self.conv2_dropout(self.conv2(x)), 2))
+        x = x.view(-1, 320)
+        x = F.relu(self.fc1(x))
+        x = F.dropout(x, training=self.training)
+        x = self.fc2(x)
+        return F.log_softmax(x, dim=1)
 
 # --- evaluation function ---
 def evaluate(dataset_loader,model):
@@ -86,7 +69,6 @@ def evaluate(dataset_loader,model):
 
     model.eval()
     for i, (eval_images, eval_labels) in enumerate(dataset_loader):
-        eval_images = eval_images.view(BATCH_SIZE, IMG_WIDTH*IMG_WIDTH)
         log_probs = model(eval_images)
         _, predicted = torch.max(log_probs, dim=1)
         total += eval_labels.size(0)
