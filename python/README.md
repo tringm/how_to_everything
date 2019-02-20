@@ -1,13 +1,13 @@
 # Python's tricks
 
-## [Pandas](./panda.md)
+## Tools
+1. [Pandas](./panda.md)
+1. [Logging](./logging.md)
+1. [SKLearn](./sklearn.md)
+1. [Pytorch](./pytorch.md)
 
-## [Logging](./logging.md)
 
-## [SKLearn](./sklearn.md)
-
-## Others
-
+## Techniques:
 #### Set string as variable name:
 
 1. Use dictionary
