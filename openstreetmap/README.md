@@ -99,3 +99,15 @@ Highway is for way type:
 * pedestrian: Roads mainly / exclusively for pedestrians
 * stop: Used to mark stop signs
 * trunk_link: Driveways or descents of an expressway
+
+### Get area by coordinates
+
+```
+[out:json];
+is_in(60.1847003, 25.0030078);
+area._[admin_level=8];  //This is a conditon
+out;
+```
+The coordinates use [ISO 6709](https://en.wikipedia.org/wiki/ISO_6709)
+If needed, use coordinates converter [espg.io](https://epsg.io/)
+Check out chronos for queries.
