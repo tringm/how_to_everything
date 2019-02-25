@@ -9,7 +9,10 @@ find _folderToLookInto_ -name "_fileType_" -type f -exec _command_ {} _folderToP
 ## Viewing/Searching
 
 ### Search for all occurence and include the line number (-n return line number, -r recursively traverse the folder)
-```grep -nr <search-term> README.md```
+
+```
+grep -nr <search-term> README.md
+```
 
 ### Print a specific line
 ```sed -n 5p README.md``` => Print line 5
