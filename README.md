@@ -7,8 +7,8 @@ A learning diary of everything (inspired by Kimmo Brunfeldt)
 1. [Ubuntu](linux/ubuntu.md)
 
 ### [Data Science Related](data-science/README.md)
-#### [Deep Learning](data-science/deep-learning/)
-1. [Pytorch](data-science/deep-learning/pytorch.md)
+#### [Machine Learning](data-science/machine-learning/)
+1. [Pytorch](data-science/machine-learning/pytorch.md)
 
 ### [Programming Languages](programming-languages)
 1. [Node Js - Test Suite](programming-language/nodejs.md)
