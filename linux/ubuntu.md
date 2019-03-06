@@ -48,3 +48,15 @@ Check for update [guide](https://askubuntu.com/questions/1046263/dell-xps-15-957
   ```
   sudo powertop
   ```
+
+#### Enable cuda
+1. Install CUDA toolkit
+  * The easy way
+  ```
+  sudo apt install nvidia-cuda-toolkit
+  ```
+  * The sure [way](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
+1. Check for CUDA version
+  ```
+  nvcc --version
+  ```

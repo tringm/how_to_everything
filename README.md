@@ -11,9 +11,9 @@ A learning diary of everything (inspired by Kimmo Brunfeldt)
 1. [Pytorch](data-science/machine-learning/pytorch.md)
 
 ### [Programming Languages](programming-languages)
-1. [Node Js - Test Suite](programming-language/nodejs.md)
-1. [Python](programming-language/python.md)
-1. [jq](programming-language/jq.md)
+1. [Node Js - Test Suite](programming-languages/nodejs.md)
+1. [Python](programming-languages/python.md)
+1. [jq](programming-languages/jq.md)
 
 ### Tools
 1. [Git](tools/git.md)
