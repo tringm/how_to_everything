@@ -14,6 +14,7 @@ A learning diary of everything (inspired by Kimmo Brunfeldt)
 1. [Node Js - Test Suite](programming-language/nodejs.md)
 1. [Python](programming-language/python.md)
 1. [jq](programming-language/jq.md)
+1. [bash](programming-language/bash.md)
 
 ### Tools
 1. [Git](tools/git.md)
@@ -22,3 +23,6 @@ A learning diary of everything (inspired by Kimmo Brunfeldt)
 1. [OpenStreetMap - Overpass API](tools/openstreetmap.md)
 1. [Spark](tools/spark.md)
 1. [Elasticsearch](tools/elasticsearch.md)
+
+### Others
+1. [Datasets](datasets.md)
