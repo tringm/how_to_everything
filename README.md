@@ -10,6 +10,9 @@ A learning diary of everything (inspired by Kimmo Brunfeldt)
 #### [Machine Learning](data-science/machine-learning/)
 1. [Pytorch](data-science/machine-learning/pytorch.md)
 
+#### [NLP](data-science/nlp)
+1. [Torchtext](data-science/nlp/torchtext.md)
+
 ### [Programming Languages](programming-languages)
 1. [Node Js - Test Suite](programming-languages/nodejs.md)
 1. [Python](programming-languages/python.md)
