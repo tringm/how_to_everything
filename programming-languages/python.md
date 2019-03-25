@@ -44,6 +44,7 @@ This does a user installation to prevent breaking any system-wide packages. If p
       setattr(self, name, value)
     ```
 1. Groupby list of tuples:
+  * ***NOTE***: This does not work with tuple of string
   * Use ```itertools.groupby```
       ```Python
       from itertools import groupby

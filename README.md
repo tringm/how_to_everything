@@ -26,6 +26,7 @@ A learning diary of everything (inspired by Kimmo Brunfeldt)
 1. [OpenStreetMap - Overpass API](tools/openstreetmap.md)
 1. [Spark](tools/spark.md)
 1. [Elasticsearch](tools/elasticsearch.md)
+1. [Docker](tools/docker.md)
 
 ### Others
 1. [Datasets](datasets.md)
