@@ -58,6 +58,7 @@ This does a user installation to prevent breaking any system-wide packages. If p
       # => [(1, [2, 3]), (2, [4, 5])]
       ```
 
+### Logging
 1.  Set up new logging level
   ```python
   logging.VERBOSE = 5
@@ -65,6 +66,11 @@ This does a user installation to prevent breaking any system-wide packages. If p
   logging.Logger.verbose = lambda inst, msg, *args, **kwargs: inst.log(logging.VERBOSE, msg, *args, **kwargs)
   logging.LoggerAdapter.verbose = lambda inst, msg, *args, **kwargs: inst.log(logging.VERBOSE, msg, *args, **kwargs)
   logging.verbose = lambda msg, *args, **kwargs: logging.log logging.VERBOSE, msg, *args, **kwargs)
+  ```
+1. Remove existing logging settings:
+  ```python
+  for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
   ```
 
 ### Preprocessing
@@ -148,3 +154,9 @@ This does a user installation to prevent breaking any system-wide packages. If p
       request = requests.post(url, data = 'haha')
       df = pd.read_csv(io.StringIO(request.content.decode('utf-8')))
       ```
+### Speed up
+1. Fast flatten list
+  * Use itertools
+    ```python
+    list(itertools.chain(*listoflists))
+    ```

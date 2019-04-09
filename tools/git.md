@@ -125,7 +125,7 @@ git push origin master --force
 
 
 ## [Git LFS](https://git-lfs.github.com/)
-
+### Install and track
 ```bash
 git lfs install
 git lfs track "*.psd"
@@ -133,4 +133,11 @@ git add .gitattributes
 git add file.psd
 git commit -m "Add design file"
 git push origin master
+```
+
+### Remove
+```bash
+for f in $(git lfs ls-files); do
+    git rm --cached $f
+done
 ```
