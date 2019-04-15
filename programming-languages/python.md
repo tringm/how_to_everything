@@ -34,7 +34,6 @@ This does a user installation to prevent breaking any system-wide packages. If p
     * If pipenv not automatically found, point it to the executable file. E.g:```/home/tri/.local/bin/pipenv```
 
 
-
 ## Tricks:
 ### Misc
 1. Set string as variable name:
@@ -89,7 +88,7 @@ This does a user installation to prevent breaking any system-wide packages. If p
   reverse = label_encoders.inverse_transform(transformed_column)
   ```
 
-### Using Pandas
+### Pandas
 1.  Load by more than 1 whitespace
   ```python
   pd.read_csv(path, names = list_of_column_names, sep='\s+')
@@ -154,9 +153,81 @@ This does a user installation to prevent breaking any system-wide packages. If p
       request = requests.post(url, data = 'haha')
       df = pd.read_csv(io.StringIO(request.content.decode('utf-8')))
       ```
+
+1. Vectorization operation on a slice of df:
+  * Use index
+    ```Python
+    use_usd = (sales_table['CUR_CODE'] == 'USD')
+    sales_table.loc[use_usd, 'ITEM_VAL_SALE'] = sales_table['ITEM_VAL_SALE'] * usd_to_eur_rate
+    ```
+
+1. Map value of a column:
+  * Map ```%Key_Store``` of sales_table to ```Country (GA)``` of store table
+    ```python
+    store_to_region = dict(zip(store_table['%Key_Store'], store_table['Country (GA)']))
+    sale_store_country = sales_table['%Key_Store'].map(store_to_region)
+    ```
+
+1. Concatenate string columns:
+  * Use col.str:
+    ```Python
+    article_number = sales_table['%Key_Item']
+    sales_table['ITEM_RU'] = article_number.str.cat(sale_store_country, sep='_')
+    ```
+
+1. Replace string column with some value + Convert string column to numeric
+  * Use col.str
+    ```python
+    article_retail_unit['Price Euro (incl. VAT)'].str.replace(',', '.').astype(float)
+    ```
+
 ### Speed up
 1. Fast flatten list
   * Use itertools
     ```python
     list(itertools.chain(*listoflists))
+    ```
+
+
+### Requests
+1. Running async requests:
+  * Use asyncio
+    ```Python
+    class AitoClient:
+      def __init__(self, url, rw_key, ro_key):
+          self.url = url
+          self.rw_key = rw_key
+          self.ro_key = ro_key
+          self.logger = logging.getLogger("AitoClient")
+
+      def async_request(self, request_methods: [str], paths: [str], data: [], use_rw_key=False):
+          async def fetch(session, req_method, url, d):
+              if isinstance(d, str):
+                  d = json.loads(d)
+              logger.info(f"{req_method} to url {url} with data: {d}")
+              async with session.request(method=req_method, url=url, json=d, headers=headers) as response:
+                  res_json = await response.json()
+                  logger.info(f"Got response: {res_json}")
+                  return res_json
+
+          async def run():
+              async with ClientSession() as session:
+                  tasks = [fetch(session, request_methods[i], full_paths[i], data[i])
+                           for i in range(len(request_methods))]
+                  logger.info(f"task {tasks}")
+                  responses = await asyncio.gather(*tasks)
+                  return responses
+
+          logger = self.logger
+
+          headers = {'Content-Type': 'application/json'}
+          if use_rw_key and self.rw_key:
+              headers['x-api-key'] = self.rw_key
+          if not use_rw_key and self.ro_key:
+              headers['x-api-key'] = self.ro_key
+
+          full_paths = [self.url + p for p in paths]
+          loop = asyncio.get_event_loop()
+          responses = loop.run_until_complete(run())
+          return responses
     ```
