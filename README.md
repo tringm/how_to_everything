@@ -15,7 +15,7 @@ A learning diary of everything (inspired by Kimmo Brunfeldt)
 
 ### [Programming Languages](programming-languages)
 1. [Node Js - Test Suite](programming-languages/nodejs.md)
-1. [Python](programming-languages/python.md)
+1. [Python](programming-languages/python/README.md)
 1. [jq](programming-languages/jq.md)
 1. [bash](programming-languages/bash.md)
 
