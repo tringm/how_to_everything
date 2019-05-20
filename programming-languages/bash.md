@@ -18,13 +18,27 @@
     ```
 1. Join the array by some separator
     ```bash
-    echo $(IFS=$'|'; echo "${datasets[*]}"):  a single dataset
+    echo $(IFS=$'|'; echo "${datasets[*]}")
+    ```
+1. Split the string by some separator
+    ```bash
+    SEPARATOR='-'
+    IN="my-string"
+    IFS=$SEPARATOR read -r -a IN_AS_LIST <<< "$IN"
     ```
 1. Append new element to array
     ```bash
     declare -a datasets=("cran" "all")
     datasets+=( "new" ) # append directly
     newDatasets=("${datasets[@]}" "new")
+    ```
+1. Remove last element of array
+    ```bash
+    unset 'ARR[${#ARR[@]}-1]'
+    ```
+1. Array indexes all but last n elements:
+    ```bash
+    ${ARR[@]:0:${#ARR[@]}-$N}
     ```
 1. Check if array contains
     ```bash
