@@ -87,3 +87,15 @@ npm test -- --grep @tag
 			```js
 			import "react-table/react-table.css";
 			```
+		* Customed cell: Adjust the header:
+			```js
+			{
+                Header: self.state.names[p],
+                accessor: p,
+                Cell: e => <a href={e.original.website}>{e.value}</a>
+            }
+			```
+		* Getting the row data from cell:
+			```js
+			Cell: cellInfo => {cellInfo.original}
+			```

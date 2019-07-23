@@ -22,6 +22,7 @@ A learning diary of everything (inspired by Kimmo Brunfeldt)
 ### Tools
 1. [Git](tools/git.md)
 1. [Google Analytics](tools/google-analytics.md)
+1. [Google Big Query](tools/google-big-query.md)
 1. [Latex](tools/latex.md)
 1. [OpenStreetMap - Overpass API](tools/openstreetmap.md)
 1. [Spark](tools/spark.md)
