@@ -26,16 +26,21 @@ The function below before binning of column COL of table TAB:
   RETURNS STRING
   LANGUAGE js AS
     """
-      const binWidth = (maxV - minV) / nBin
-      var binLowVal = minV
-      var binHighVal = minV + binWidth
-      var binAsString = `[${binLowVal}, ${binHighVal})`
-      while (colV >= binHighVal) {
-        binLowVal = binHighVal
-        binHighVal = binLowVal + binWidth
-        binAsString = `[${binLowVal}, ${binHighVal})`
+    const binWidth = (maxV - minV) / nBin
+    var binLowVal = minV
+    var binHighVal = minV + binWidth
+    var binAsString = `[${binLowVal.toFixed(2)}, ${binHighVal.toFixed(2)})`
+    while (colV >= binHighVal) {
+      binLowVal = binHighVal
+      binHighVal = binLowVal + binWidth
+      if (binHighVal == maxV){
+        binAsString = `[${binLowVal.toFixed(2)}, ${binHighVal.toFixed(2)}]`
       }
-      return binAsString
+      else {
+        binAsString = `[${binLowVal.toFixed(2)}, ${binHighVal.toFixed(2)})`
+      }
+    }
+    return binAsString
     """;
   WITH
       infos AS (
