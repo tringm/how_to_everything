@@ -1,5 +1,66 @@
-### [Example of quantiles](https://www.bounteous.com/insights/2016/06/26/compute-quantiles-or-bucketingbinning/)
+### User defined function
+Big query supports running user defined function, with a language as well. The example below show js but it can support C (?)
+  ```sql
+  CREATE TEMP FUNCTION convertToEqualBin(colV FLOAT64, minV FLOAT64, maxV FLOAT64, nBin FLOAT64)
+  RETURNS STRING
+  LANGUAGE js AS
+    """
+      const binWidth = (maxV - minV) / nBin
+      var binLowVal = minV
+      var binHighVal = minV + binWidth
+      var binAsString = `[${binLowVal}, ${binHighVal})`
+      while (colV >= binHighVal) {
+        binLowVal = binHighVal
+        binHighVal = binLowVal + binWidth
+        binAsString = `[${binLowVal}, ${binHighVal})`
+      }
+      return binAsString
+    """;
   ```
+
+### Do equal width binning:
+The function below before binning of column COL of table TAB:
+
+  ```sql
+  CREATE TEMP FUNCTION convertToEqualBin(colV FLOAT64, minV FLOAT64, maxV FLOAT64, nBin FLOAT64)
+  RETURNS STRING
+  LANGUAGE js AS
+    """
+      const binWidth = (maxV - minV) / nBin
+      var binLowVal = minV
+      var binHighVal = minV + binWidth
+      var binAsString = `[${binLowVal}, ${binHighVal})`
+      while (colV >= binHighVal) {
+        binLowVal = binHighVal
+        binHighVal = binLowVal + binWidth
+        binAsString = `[${binLowVal}, ${binHighVal})`
+      }
+      return binAsString
+    """;
+  WITH
+      infos AS (
+        SELECT
+          customerId,
+          firstDayOfMonth,
+          COL,
+          (SELECT MIN(COL) FROM `TAB`) minVal,
+          (SELECT MAX(COL) FROM `TAB`) maxVal,
+          (SELECT SQRT(COUNT(COL)) FROM `TAB`) nBin
+        FROM `TAB`
+        GROUP BY customerId, firstDayofMonth, COL
+      )
+  SELECT
+    customerId,
+    firstDayOfMonth,
+    COL,
+    convertToEqualBin(COL, minVal, maxVal, nBin) as binnedCOL
+  FROM infos
+  ORDER BY customerId asc, firstDayOfMonth desc
+  ```
+
+
+### [Example of quantiles](https://www.bounteous.com/insights/2016/06/26/compute-quantiles-or-bucketingbinning/)
+  ```sql
   SELECT
     trafficSource.medium,
     SUM(totals.visits) AS sessions,
