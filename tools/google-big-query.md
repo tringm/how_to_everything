@@ -87,3 +87,9 @@ The function below before binning of column COL of table TAB:
   GROUP BY
     trafficSource.medium
   ```
+
+### Convert first day of month to end day of month
+  Add 1 month, minus 1 day
+  ```sql
+  DATE_ADD(DATE_ADD(firstDayofMonth, Interval 1 MONTH), INTERVAL -1 DAY) as churnedEndDayOfMonth
+  ```
