@@ -141,3 +141,27 @@ for f in $(git lfs ls-files); do
     git rm --cached $f
 done
 ```
+
+## Default .gitconfig file
+```
+[user]
+    name = Tri Nguyen
+    email = tringuyenminh23@gmail.com
+[diff]
+    tool = meld
+[difftool]
+    prompt = false
+[difftool "meld"]
+    cmd = meld "$LOCAL" "$REMOTE"
+[merge]
+    tool = meld
+[mergetool "meld"]
+    cmd = meld "$LOCAL" "$MERGED" "$REMOTE" --output "$MERGED"
+[filter "lfs"]
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+    clean = git-lfs clean -- %f
+[core]
+    editor = atom --wait
+```
