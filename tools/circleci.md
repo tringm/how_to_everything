@@ -1,0 +1,710 @@
+* A good CircleCI config file that tests across multiple platforms
+  [Source](https://github.com/dwavesystems/dimod/blob/master/.circleci/config.yml)
+    ```
+    version: 2.1
+
+    orbs:
+      win: circleci/windows@2.2.0
+
+    jobs:
+      test-py38: &full-test-template
+        docker:
+          - image: circleci/python:3.8-buster
+
+        working_directory: ~/repo
+
+        steps:
+
+          - checkout
+
+          - run: &install-boost-linux-template
+              name: install boost
+              command: |
+                sudo apt-get install libboost-dev
+
+          - restore_cache: &restore-cache-template
+              keys:
+              - v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+          - run: &create-virtualenv-template
+              name: create virtualenv
+              command: |
+                python -m virtualenv env
+
+          - run: &install-dependencies-template
+              name: install dependencies
+              command: |
+                . env/bin/activate
+                python --version
+                pip install -r requirements.txt
+
+          - save_cache: &save-cache-template
+              paths:
+                - ./env
+              key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ .Environment.CIRCLE_JOB }}
+
+          # tests should work without the extension built
+          - run: &run-tests-template
+              name: run unittests
+              command: |
+                . env/bin/activate
+                python --version
+                coverage run -m unittest discover
+
+          # test the extension as well
+          - run: &build-ext-template
+              name: build extension
+              command: |
+                . env/bin/activate
+                python setup.py build_ext --inplace
+
+          - run: *run-tests-template
+
+          - run:
+              name: codecov
+              command: |
+                . env/bin/activate
+                codecov
+
+      test-py37:
+        <<: *full-test-template
+        docker:
+          - image: circleci/python:3.7-stretch
+
+      test-py36:
+        <<: *full-test-template
+        docker:
+          - image: circleci/python:3.6-jessie
+
+      test-py35:
+        <<: *full-test-template
+        docker:
+          - image: circleci/python:3.5-jessie
+
+      test-py34:
+        <<: *full-test-template
+        docker:
+          - image: circleci/python:3.4-jessie
+
+      test-py27:
+        <<: *full-test-template
+        docker:
+          - image: circleci/python:2.7-jessie
+
+      test-osx-py38: &osx-tests-template
+        macos:
+          xcode: "11.2.1"
+        environment:
+          PYTHON: 3.8.0
+          HOMEBREW_NO_AUTO_UPDATE: 1
+
+          # Force (lie about) macOS 10.9 binary compatibility.
+          # Needed for properly versioned wheels.
+          # See: https://github.com/MacPython/wiki/wiki/Spinning-wheels
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+        working_directory: ~/repo
+
+        steps:
+          - checkout
+
+          - run:
+              name: install pyenv
+              command: |
+                brew install pyenv
+
+          - run: &install-boost-osx-template
+              name: install boost
+              command: |
+                brew install boost
+
+          - restore_cache:
+              keys:
+                - pyenv-{{ .Environment.CIRCLE_JOB }}-xcode11.2.1
+
+          - run:
+              name: install python
+              command: |
+                pyenv install $PYTHON -s
+
+          - save_cache:
+              paths:
+                - ~/.pyenv
+              key: pyenv-{{ .Environment.CIRCLE_JOB }}-xcode11.2.0
+
+          - restore_cache: *restore-cache-template
+
+          - run:
+              name: create virtualenv
+              command: |
+                eval "$(pyenv init -)"
+                pyenv local $PYTHON
+                python -m pip install virtualenv
+                python -m virtualenv env
+
+          - run: *install-dependencies-template
+
+          - save_cache: *save-cache-template
+
+          - run: *run-tests-template
+
+          - run: *build-ext-template
+
+          - run: *run-tests-template
+
+      test-osx-py37:
+        <<: *osx-tests-template
+        environment:
+          PYTHON: 3.7.4
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      test-osx-py36:
+        <<: *osx-tests-template
+        environment:
+          PYTHON: 3.6.5
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      test-osx-py35:
+        <<: *osx-tests-template
+        environment:
+          PYTHON: 3.5.5
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      test-osx-py34:
+        <<: *osx-tests-template
+        environment:
+          PYTHON: 3.4.8
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      test-osx-py27:
+        <<: *osx-tests-template
+        environment:
+          PYTHON: 2.7.15
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      test-win-py38: &win-tests-template
+        executor:
+          name: win/default
+
+        environment:
+          PYTHON: 3.8.0
+
+        working_directory: ~/repo
+
+        steps:
+          - checkout
+
+          - run:  &win-install-python-template
+              name: install python and create virtualenv
+              command: |
+                nuget install python -Version $env:PYTHON -ExcludeVersion -OutputDirectory .
+                .\python\tools\python.exe --version
+                .\python\tools\python.exe -m pip install virtualenv
+                .\python\tools\python.exe -m virtualenv env
+
+          - run: &win-install-dependencies-template
+              name: install dependencies
+              command: |
+                env\Scripts\activate.ps1
+                python --version
+                pip install -r requirements.txt
+
+          - run:  &win-install-boost-template
+              name: install boost
+              command: |
+                 nuget install boost -ExcludeVersion -OutputDirectory .
+
+          - run: &win-build-ext-template
+              name: build extension
+              command: |
+                env\Scripts\activate.ps1
+                python setup.py build_ext --inplace --include-dirs boost\lib\native\include\
+
+          - run: &win-run-unittests-template
+              name: run unittests
+              command: |
+                env\Scripts\activate.ps1
+                coverage run -m unittest discover
+
+          - run: &win-build-wheel-template
+              name: create wheel
+              command: |
+                env\Scripts\activate.ps1
+                $env:CL='-Iboost\lib\native\include\'
+                python setup.py bdist_wheel
+
+          - store_artifacts:
+              path: .\dist
+
+          - run: &win-codecov-template
+              name: codecov
+              command: |
+                env\Scripts\activate.ps1
+                codecov
+
+      test-win-py38x86: &win-tests-template-x86
+        executor:
+          name: win/default
+
+        environment:
+          PYTHON: 3.8.0
+
+        working_directory: ~/repo
+
+        steps:
+          - checkout
+
+          - run:  &win-install-pythonx86-template
+              name: install python and create virtualenv
+              command: |
+                nuget install pythonx86 -Version $env:PYTHON -ExcludeVersion -OutputDirectory .
+                .\pythonx86\tools\python.exe --version
+                .\pythonx86\tools\python.exe -m pip install virtualenv
+                .\pythonx86\tools\python.exe -m virtualenv env
+
+          - run: *win-install-dependencies-template
+
+          - run: *win-install-boost-template
+
+          - run: *win-run-unittests-template
+
+          - run: *win-build-ext-template
+
+          - run: *win-build-wheel-template
+
+          - store_artifacts:
+              path: .\dist
+
+          - run: *win-codecov-template
+
+      test-win-py37:
+        <<: *win-tests-template
+        environment:
+          PYTHON: 3.7.5
+
+      test-win-py37x86:
+        <<: *win-tests-template-x86
+        environment:
+          PYTHON: 3.7.5
+
+      test-win-py36:
+        <<: *win-tests-template
+        environment:
+          PYTHON: 3.6.8
+
+      test-win-py36x86:
+        <<: *win-tests-template-x86
+        environment:
+          PYTHON: 3.6.8
+
+      test-win-py35:
+        <<: *win-tests-template
+        environment:
+          PYTHON: 3.5.4
+
+      test-win-py35x86:
+        <<: *win-tests-template-x86
+        environment:
+          PYTHON: 3.5.4
+
+      test-doctest:
+        docker:
+          - image: circleci/python:3.7-stretch # as of march 2019 RTD uses 3.7
+
+        working_directory: ~/repo
+
+        steps:
+          - checkout
+
+          - run: *install-boost-linux-template
+
+          - restore_cache: *restore-cache-template
+
+          - run: *create-virtualenv-template
+
+          - run: *install-dependencies-template
+
+          - run:
+              name: install sphinx
+              command: |
+                . env/bin/activate
+                pip install sphinx
+                pip install sphinx_rtd_theme
+
+          - save_cache: *save-cache-template
+
+          - run: *build-ext-template
+
+          - run:
+              name: doctest
+              command: |
+                . env/bin/activate
+                make -C docs/ html doctest
+
+    ##################################################################################################
+    # Deploy
+    ##################################################################################################
+
+      deploy-manylinux-64: &manylinux-deploy-template
+        docker:
+          - image: quay.io/pypa/manylinux1_x86_64
+
+        working_directory: ~/repo
+
+        steps:
+          - checkout
+
+          - run:
+              name: install boost
+              command: |
+                yum install -y boost-devel
+
+          - run:
+              name: build wheels
+              command: |
+                for PYBIN in /opt/python/*/bin; do
+                  "${PYBIN}/pip" install -r requirements.txt
+                  "${PYBIN}/pip" wheel . -w ./wheelhouse
+                  "${PYBIN}/python" setup.py sdist -d ./dist
+                done
+
+          - run:
+              name: bundle shared libraries into wheels
+              command: |
+                for whl in ./wheelhouse/dimod*.whl; do
+                  auditwheel repair "$whl" -w ./dist
+                done
+
+          - store_artifacts:
+              path: ./dist
+
+          - run:
+              name: create a virtualenv
+              command: |
+                pythons=(/opt/python/*/bin)
+                python="${pythons[0]}"
+                "$python/pip" install virtualenv
+                "$python/python" -m virtualenv env
+
+          - run: &upload-template
+              name: install twine and deploy
+              command: |
+                . env/bin/activate
+                python -m pip install twine
+                twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD --skip-existing ./dist/*
+
+      deploy-manylinux-32:
+        <<: *manylinux-deploy-template
+        docker:
+          - image: quay.io/pypa/manylinux1_i686
+
+      deploy-osx-py38: &osx-deploy-template
+        macos:
+          xcode: "11.2.0"
+        environment:
+          PYTHON: 3.8.0
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+        working_directory: ~/repo
+
+        steps:
+          - checkout
+
+          - run:
+              name: install pyenv
+              command: |
+                brew install pyenv
+
+          - run: *install-boost-osx-template
+
+          - restore_cache:
+              keys:
+                - pyenv-{{ .Environment.CIRCLE_JOB }}-xcode11.2.0
+
+          - run:
+              name: install python
+              command: |
+                pyenv install $PYTHON -s
+
+          - save_cache:
+              paths:
+                - ~/.pyenv
+              key: pyenv-{{ .Environment.CIRCLE_JOB }}-xcode11.2.0
+
+          - run:
+              name: create virtualenv
+              command: |
+                eval "$(pyenv init -)"
+                pyenv local $PYTHON
+                python -m pip install virtualenv
+                python -m virtualenv env
+
+          - run: *install-dependencies-template
+
+          - run: *build-ext-template
+
+          - run:
+              name: create bdist_wheel
+              command: |
+                . env/bin/activate
+                python setup.py bdist_wheel
+
+          - store_artifacts:
+              path: ./dist
+
+          - run: *upload-template
+
+      deploy-osx-py37:
+        <<: *osx-deploy-template
+        environment:
+          PYTHON: 3.7.4
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      deploy-osx-py36:
+        <<: *osx-deploy-template
+        environment:
+          PYTHON: 3.6.5
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      deploy-osx-py35:
+        <<: *osx-deploy-template
+        environment:
+          PYTHON: 3.5.5
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      deploy-osx-py34:
+        <<: *osx-deploy-template
+        environment:
+          PYTHON: 3.4.8
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      deploy-osx-py27:
+        <<: *osx-deploy-template
+        environment:
+          PYTHON: 2.7.15
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+
+      deploy-win-py38: &win-deploy-template
+        executor:
+          name: win/default
+
+        environment:
+          PYTHON: 3.8.0
+
+        working_directory: ~/repo
+
+        steps:
+          - checkout
+
+          - run: *win-install-python-template
+
+          - run: *win-install-dependencies-template
+
+          - run: *win-install-boost-template
+
+          - run: *win-build-ext-template
+
+          - run: *win-build-wheel-template
+
+          - store_artifacts:
+              path: .\dist
+
+          - run: &win-twine-template
+              name: install twine and deploy
+              command: |
+                env\Scripts\activate.ps1
+                python -m pip install twine
+                twine upload -u $env:PYPI_USERNAME -p $env:PYPI_PASSWORD --skip-existing ./dist/*
+
+      deploy-win-py38x86: &win-deploy-template-x86
+        executor:
+          name: win/default
+
+        environment:
+          PYTHON: 3.8.0
+
+        working_directory: ~/repo
+
+        steps:
+          - checkout
+
+          - run: *win-install-pythonx86-template
+
+          - run: *win-install-dependencies-template
+
+          - run: *win-install-boost-template
+
+          - run: *win-build-ext-template
+
+          - run: *win-build-wheel-template
+
+          - store_artifacts:
+              path: .\dist
+
+          - run: *win-twine-template
+
+      deploy-win-py37:
+        <<: *win-deploy-template
+        environment:
+          PYTHON: 3.7.0
+
+      deploy-win-py37x86:
+        <<: *win-deploy-template-x86
+        environment:
+          PYTHON: 3.7.0
+
+      deploy-win-py36:
+        <<: *win-deploy-template
+        environment:
+          PYTHON: 3.6.8
+
+      deploy-win-py36x86:
+        <<: *win-deploy-template-x86
+        environment:
+          PYTHON: 3.6.8
+
+      deploy-win-py35:
+        <<: *win-deploy-template
+        environment:
+          PYTHON: 3.5.4
+
+      deploy-win-py35x86:
+        <<: *win-deploy-template-x86
+        environment:
+          PYTHON: 3.5.4
+
+    workflows:
+      version: 2
+      tests:
+        jobs:
+          - test-py38
+          - test-py37
+          - test-py36
+          - test-py35
+          - test-py34
+          - test-py27
+          - test-osx-py38
+          - test-osx-py37
+          - test-osx-py36
+          - test-osx-py35
+          - test-osx-py34
+          - test-osx-py27
+          - test-win-py38
+          - test-win-py37
+          - test-win-py36
+          - test-win-py35
+          - test-win-py38x86
+          - test-win-py37x86
+          - test-win-py36x86
+          - test-win-py35x86
+          - test-doctest
+      deploy:
+        jobs:
+          - deploy-manylinux-64:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-manylinux-32:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-osx-py38:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-osx-py37:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-osx-py36:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-osx-py35:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-osx-py34:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-osx-py27:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-win-py38:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-win-py37:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-win-py36:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-win-py35:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-win-py38x86:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-win-py37x86:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-win-py36x86:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+          - deploy-win-py35x86:
+              filters:
+                tags:
+                  only: /^[0-9]+(\.[0-9]+)*(\.dev([0-9]+)?)?$/
+                branches:
+                  ignore: /.*/
+    ```
