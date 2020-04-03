@@ -29,3 +29,10 @@
         ```
 2.  [Adding pipenv to Pycharm Project](https://www.jetbrains.com/help/pycharm/pipenv.html)
     -   If pipenv not automatically found, point it to the executable file. E.g:`/home/tri/.local/bin/pipenv`
+
+1. Install packages from test.pypi and dependencies:
+
+  ```
+  pip install -i https://test.pypi.org/simple/ aitoai --no-deps
+  pip install aitoai
+  ```
